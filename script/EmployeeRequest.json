@@ -1,0 +1,18 @@
+{
+  "employee": {
+    "empId": 101,
+    "name": "Venkat",
+    "address":{
+      "doorNo":100,
+      "streetName":"one street",
+      "city": "chennai"
+    },
+    "phoneNumber": ["999","8888"]
+  },
+  "project": {
+    "projectName": "xxxxx",
+    "location": "bangalore",
+    "initiated": true
+
+  }
+}
