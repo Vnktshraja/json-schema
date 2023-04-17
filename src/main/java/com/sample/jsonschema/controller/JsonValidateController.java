@@ -3,16 +3,16 @@ package com.sample.jsonschema.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.github.fge.jackson.JsonLoader;
 import com.github.fge.jsonschema.core.exceptions.ProcessingException;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
+import com.google.gson.Gson;
 import com.sample.jsonschema.jsonpoc.EmployeeRequest;
-import com.sample.jsonschema.jsonpoc.POCService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,19 +21,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 @RestController
 public class JsonValidateController {
 
     public static final Logger LOGGER = LoggerFactory.getLogger(JsonValidateController.class);
 
-    @Autowired
-    private POCService service;
-
 
     @PostMapping("/validate")
-    public ResponseEntity<String> jsonValidate(@RequestBody String request) throws IOException, ProcessingException {
+    public ResponseEntity<String> jsonValidate(@RequestBody EmployeeRequest request) throws IOException, ProcessingException {
 
         // Load the JSON schema
 //        InputStream schemaStream = JsonValidateController.class.getResourceAsStream("/request.schema.json");
@@ -53,16 +49,26 @@ public class JsonValidateController {
         JsonSchemaFactory schemaFactory = JsonSchemaFactory.byDefault();
         JsonSchema schema = schemaFactory.getJsonSchema(schemaJson);
 
+        Gson gson = new Gson();
+        String personJson = gson.toJson(request);
+        System.out.println(personJson);
+
 //        JsonNode dataJson = JsonLoader.fromString("{\"name\": \"John\"}");
-        ObjectMapper om = new ObjectMapper();
-        JsonNode jsonNode = om.readTree(request);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        // Convert the Person object to a JSON string
+        String jsonString = objectMapper.writeValueAsString(request);
+        JsonNode jsonNode = objectMapper.readTree(personJson);
+        System.out.println(request);
+
+
         ProcessingReport report = schema.validate(jsonNode);
- //       System.out.println(jsonNode);
+        System.out.println(jsonNode);
         if (report.isSuccess()) {
-            service.saveObject(request);
             return new ResponseEntity<>("Success",HttpStatus.ACCEPTED);
         }else
-            return new ResponseEntity<>("Invalid Json" +"\n"+"\n"+  report ,HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Invalid Json" +"\n"+"\n",HttpStatus.BAD_REQUEST);
+
     }
 
 }

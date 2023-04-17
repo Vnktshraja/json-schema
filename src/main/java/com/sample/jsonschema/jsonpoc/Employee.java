@@ -1,7 +1,14 @@
 package com.sample.jsonschema.jsonpoc;
 
-import java.util.List;
+import lombok.*;
 
+import java.util.List;
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+@ToString
+@Data
 public class Employee {
     private Integer empId;
     private String name;

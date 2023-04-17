@@ -2,11 +2,12 @@ package com.sample.jsonschema.jsonpoc;
 
 import lombok.*;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
+@ToString
+@Data
 public class Project {
     private String projectName;
     private String location;
