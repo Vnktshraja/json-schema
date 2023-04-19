@@ -1,6 +1,7 @@
 package com.sample.jsonschema.controller;
 
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -10,6 +11,7 @@ import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.sample.jsonschema.jsonpoc.EmployeeRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,34 +33,21 @@ public class JsonValidateController {
     @PostMapping("/validate")
     public ResponseEntity<String> jsonValidate(@RequestBody EmployeeRequest request) throws IOException, ProcessingException {
 
-        // Load the JSON schema
-//        InputStream schemaStream = JsonValidateController.class.getResourceAsStream("/request.schema.json");
-//        ObjectMapper mapper = new ObjectMapper();
-//        JsonNode schemaNode = mapper.readTree(schemaStream);
-//        JsonSchemaFactory factory = JsonSchemaFactory.byDefault();
-//        JsonSchema schema = factory.getJsonSchema(schemaNode);
-//
-//        // Load the JSON data to validate
-//        InputStream dataStream = JsonValidateController.class.getResourceAsStream("/EmployeeRequest.json");
-//        JsonNode dataNode = mapper.readTree(request);
-//
-//        // Perform the validation
-//        schema.validate(dataNode);
-//        System.out.println("Validation succeeded!");
+
         JsonNode schemaJson = JsonLoader.fromFile(new File("schema.json"));
         JsonSchemaFactory schemaFactory = JsonSchemaFactory.byDefault();
         JsonSchema schema = schemaFactory.getJsonSchema(schemaJson);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        mapper.disable(SerializationFeature.INDENT_OUTPUT);
 
-        Gson gson = new Gson();
-        String personJson = gson.toJson(request);
-        System.out.println(personJson);
+//        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//        String personJson = gson.toJson(request);
+//        System.out.println(personJson);
 
-//        JsonNode dataJson = JsonLoader.fromString("{\"name\": \"John\"}");
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         // Convert the Person object to a JSON string
-        String jsonString = objectMapper.writeValueAsString(request);
-        JsonNode jsonNode = objectMapper.readTree(personJson);
+        String jsonString = mapper.writeValueAsString(request);
+        JsonNode jsonNode = mapper.readTree(jsonString);
         System.out.println(request);
 
 
